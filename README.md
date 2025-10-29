@@ -9,8 +9,8 @@ git clone https://github.com/kkrick-sdsu/dotfiles.git ~/.dotfiles
 
 ## Link
 ```bash
-ln -s ~/.dotfiles/.vimrc ~/.vimrc
-ln -s ~/.dotfiles/.vim ~/.vim
+ln -s ~/.dotfiles/vim/.vimrc ~/.vimrc
+ln -s ~/.dotfiles/vim/.vim ~/.vim
 ```
 
 ## Install
