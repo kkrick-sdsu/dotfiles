@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =6
+let g:netrw_dirhist_6='/Users/kkrick/Documents/rci/coder-templates'
+let g:netrw_dirhist_5='/Users/kkrick'
+let g:netrw_dirhist_4='/Users/kkrick/Documents/rci/coder-images/images/jupyter/minimal'
+let g:netrw_dirhist_3='/Users/kkrick/Documents/rci/coder-images/images/jupyter'
+let g:netrw_dirhist_2='/Users/kkrick/Documents/rci/coder-images/images'
+let g:netrw_dirhist_1='/Users/kkrick/Documents/rci/coder-images'
+let g:netrw_dirhist_0='/Users/kkrick'
+let g:netrw_dirhist_9='/Users/kkrick/Documents/rci/coder-images'
+let g:netrw_dirhist_8='/Users/kkrick/Documents/rci'
+let g:netrw_dirhist_7='/Users/kkrick/Documents'
