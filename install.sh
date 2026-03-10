@@ -17,6 +17,20 @@ link_file() {
   ln -s "$src" "$dest"
 }
 
+link_children() {
+  src_dir="$1"
+  dest_dir="$2"
+
+  for path in "$src_dir"/.[!.]* "$src_dir"/..?* "$src_dir"/*; do
+    if [ ! -e "$path" ] && [ ! -L "$path" ]; then
+      continue
+    fi
+
+    base=$(basename "$path")
+    link_file "$path" "$dest_dir/$base"
+  done
+}
+
 ensure_git_identity() {
   git_identity_file="$HOME/.gitconfig.local"
   if [ -f "$git_identity_file" ]; then
@@ -55,28 +69,16 @@ fi
 # Link config/ -> ~/.config
 for dir in nvim git; do
   mkdir -p "$HOME/.config/$dir"
-  find "$REPO_DIR/config/$dir" -mindepth 1 -maxdepth 1 -print0 2>/dev/null \
-    | while IFS= read -r -d '' path; do
-        base=$(basename "$path")
-        link_file "$path" "$HOME/.config/$dir/$base"
-      done
+  link_children "$REPO_DIR/config/$dir" "$HOME/.config/$dir"
 done
 
 if $is_macos; then
   mkdir -p "$HOME/.config/iterm2"
-  find "$REPO_DIR/config/iterm2" -mindepth 1 -maxdepth 1 -print0 2>/dev/null \
-    | while IFS= read -r -d '' path; do
-        base=$(basename "$path")
-        link_file "$path" "$HOME/.config/iterm2/$base"
-      done
+  link_children "$REPO_DIR/config/iterm2" "$HOME/.config/iterm2"
 fi
 
 # Link home/ -> ~
-find "$REPO_DIR/home" -mindepth 1 -maxdepth 1 -print0 2>/dev/null \
-  | while IFS= read -r -d '' path; do
-      base=$(basename "$path")
-      link_file "$path" "$HOME/$base"
-    done
+link_children "$REPO_DIR/home" "$HOME"
 
 ensure_git_identity
 
