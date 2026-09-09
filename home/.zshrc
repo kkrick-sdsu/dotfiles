@@ -221,3 +221,10 @@ alias python=python3
 alias pip=pip3
 export PATH="/opt/homebrew/bin:$PATH"
 export PATH="/Users/${USER}/.local/bin:$PATH"
+export EDITOR="nvim"
+export VISUAL="nvim"
+
+# Load private environment variables if present
+if [ -f "$HOME/.zshrc.local" ]; then
+  source "$HOME/.zshrc.local"
+fi
