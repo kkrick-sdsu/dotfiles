@@ -21,6 +21,75 @@ else
   }
 fi
 
+required_neovim_version="0.11.0"
+official_neovim_version="${NVIM_VERSION:-0.11.7}"
+
+version_at_least() {
+  version_at_least_required="$1"
+  version_at_least_actual="$2"
+
+  old_ifs="$IFS"
+  IFS=.
+  set -- $version_at_least_required
+  required_major=${1:-0}
+  required_minor=${2:-0}
+  required_patch=${3:-0}
+
+  set -- $version_at_least_actual
+  actual_major=${1:-0}
+  actual_minor=${2:-0}
+  actual_patch=${3:-0}
+  IFS="$old_ifs"
+
+  if [ "$actual_major" -gt "$required_major" ]; then
+    return 0
+  fi
+  if [ "$actual_major" -lt "$required_major" ]; then
+    return 1
+  fi
+  if [ "$actual_minor" -gt "$required_minor" ]; then
+    return 0
+  fi
+  if [ "$actual_minor" -lt "$required_minor" ]; then
+    return 1
+  fi
+  [ "$actual_patch" -ge "$required_patch" ]
+}
+
+neovim_version() {
+  nvim --version | sed -n '1s/^NVIM v//p' | cut -d- -f1
+}
+
+install_official_neovim() {
+  official_arch=""
+  case "$(uname -m)" in
+    x86_64) official_arch="x86_64" ;;
+    aarch64|arm64) official_arch="arm64" ;;
+    *)
+      echo "Neovim $(neovim_version) is too old, and no official release is configured for $(uname -m)."
+      exit 1
+      ;;
+  esac
+
+  archive_name="nvim-linux-$official_arch.tar.gz"
+  archive_url="https://github.com/neovim/neovim/releases/download/v$official_neovim_version/$archive_name"
+  install_dir="/opt/nvim-linux-$official_arch"
+  temp_dir=$(mktemp -d)
+  trap 'rm -rf "$temp_dir"' EXIT HUP INT TERM
+
+  echo "Installing Neovim $official_neovim_version from $archive_url"
+  curl -fL --retry 3 -o "$temp_dir/$archive_name" "$archive_url"
+  run_privileged mkdir -p /opt
+  run_privileged tar -C /opt -xzf "$temp_dir/$archive_name"
+
+  if [ -e /usr/local/bin/nvim ] && [ ! -L /usr/local/bin/nvim ]; then
+    run_privileged mv /usr/local/bin/nvim /usr/local/bin/nvim.bak
+  fi
+  run_privileged ln -sfn "$install_dir/bin/nvim" /usr/local/bin/nvim
+  trap - EXIT HUP INT TERM
+  rm -rf "$temp_dir"
+}
+
 run_privileged apt-get update
 
 # Core tooling for this dotfiles repo and Neovim plugins.
@@ -36,6 +105,15 @@ run_privileged apt-get install -y \
   npm \
   ripgrep \
   fd-find
+
+if ! command -v nvim >/dev/null 2>&1 || ! version_at_least "$required_neovim_version" "$(neovim_version)"; then
+  install_official_neovim
+fi
+
+if ! version_at_least "$required_neovim_version" "$(neovim_version)"; then
+  echo "Neovim $(neovim_version) is below the required version $required_neovim_version."
+  exit 1
+fi
 
 # LSP servers available via npm.
 run_privileged npm install -g \

@@ -16,6 +16,15 @@ Personal dotfiles repo with a small install/uninstall system and OS bootstraps.
 
 The Ubuntu and Arch bootstraps support root-based devcontainers directly. Non-root users need `sudo`; `uv` is installed for the invoking user.
 
+The Neovim configuration requires Neovim 0.11 or newer. The Ubuntu bootstrap uses the distro package when it meets that requirement; otherwise it installs the pinned official Neovim release archive. Set `NVIM_VERSION` to override the fallback release version.
+
+To verify the installed runtime:
+
+```sh
+nvim --version
+nvim --headless '+lua print(vim.version())' +qa
+```
+
 ## Uninstall (optional)
 ```sh
 ./uninstall.sh
