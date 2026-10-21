@@ -3,6 +3,50 @@ set -eu
 
 REPO_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
+run_bootstrap() {
+  bootstrap_script=""
+
+  case "$(uname -s)" in
+    Darwin)
+      bootstrap_script="$REPO_DIR/scripts/bootstrap_macos.sh"
+      ;;
+    Linux)
+      if [ -r /etc/os-release ]; then
+        # shellcheck disable=SC1091
+        . /etc/os-release
+
+        case "${ID:-}" in
+          ubuntu|debian|linuxmint|pop)
+            bootstrap_script="$REPO_DIR/scripts/bootstrap_ubuntu.sh"
+            ;;
+          arch|manjaro|endeavouros)
+            bootstrap_script="$REPO_DIR/scripts/bootstrap_arch.sh"
+            ;;
+        esac
+
+        if [ -z "$bootstrap_script" ]; then
+          case " ${ID_LIKE:-} " in
+            *" debian "*)
+              bootstrap_script="$REPO_DIR/scripts/bootstrap_ubuntu.sh"
+              ;;
+            *" arch "*)
+              bootstrap_script="$REPO_DIR/scripts/bootstrap_arch.sh"
+              ;;
+          esac
+        fi
+      fi
+      ;;
+  esac
+
+  if [ -z "$bootstrap_script" ]; then
+    printf 'No supported bootstrap found for this OS; continuing with dotfiles install.\n'
+    return 0
+  fi
+
+  printf 'Running bootstrap: %s\n' "$bootstrap_script"
+  "$bootstrap_script"
+}
+
 link_file() {
   src="$1"
   dest="$2"
@@ -58,6 +102,8 @@ ensure_git_identity() {
     printf '  email = %s\n' "$git_email"
   } >"$git_identity_file"
 }
+
+run_bootstrap
 
 mkdir -p "$HOME/.config"
 

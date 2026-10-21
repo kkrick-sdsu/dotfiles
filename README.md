@@ -12,6 +12,10 @@ Personal dotfiles repo with a small install/uninstall system and OS bootstraps.
 ./install.sh
 ```
 
+`install.sh` detects macOS, Debian/Ubuntu-family Linux, or Arch-family Linux and runs the matching bootstrap before linking the dotfiles. Unsupported systems skip package bootstrapping and continue with the dotfile install. A recognized bootstrap failure stops the install before links are created.
+
+The Ubuntu and Arch bootstraps support root-based devcontainers directly. Non-root users need `sudo`; `uv` is installed for the invoking user.
+
 ## Uninstall (optional)
 ```sh
 ./uninstall.sh

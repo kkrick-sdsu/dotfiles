@@ -6,10 +6,25 @@ if ! command -v apt-get >/dev/null 2>&1; then
   exit 1
 fi
 
-sudo apt-get update
+if [ "$(id -u)" -eq 0 ]; then
+  run_privileged() {
+    "$@"
+  }
+else
+  if ! command -v sudo >/dev/null 2>&1; then
+    echo "This bootstrap must run as root or require sudo for a non-root user."
+    exit 1
+  fi
+
+  run_privileged() {
+    sudo "$@"
+  }
+fi
+
+run_privileged apt-get update
 
 # Core tooling for this dotfiles repo and Neovim plugins.
-sudo apt-get install -y \
+run_privileged apt-get install -y \
   git \
   neovim \
   curl \
@@ -23,7 +38,7 @@ sudo apt-get install -y \
   fd-find
 
 # LSP servers available via npm.
-sudo npm install -g \
+run_privileged npm install -g \
   bash-language-server \
   dockerfile-language-server-nodejs \
   typescript-language-server \
@@ -50,7 +65,7 @@ for pkg in $apt_lsp_pkgs; do
 done
 
 if [ -n "$installable" ]; then
-  sudo apt-get install -y $installable
+  run_privileged apt-get install -y $installable
 fi
 
 if [ -n "$missing" ]; then

@@ -6,6 +6,21 @@ if ! command -v pacman >/dev/null 2>&1; then
   exit 1
 fi
 
+if [ "$(id -u)" -eq 0 ]; then
+  run_privileged() {
+    "$@"
+  }
+else
+  if ! command -v sudo >/dev/null 2>&1; then
+    echo "This bootstrap must run as root or require sudo for a non-root user."
+    exit 1
+  fi
+
+  run_privileged() {
+    sudo "$@"
+  }
+fi
+
 # Core tools
 core_pkgs="tmux neovim curl"
 
@@ -24,7 +39,7 @@ for pkg in $core_pkgs $lsp_pkgs; do
   done
 
 if [ -n "$install_pkgs" ]; then
-  sudo pacman -Syu --needed $install_pkgs
+  run_privileged pacman -Syu --needed $install_pkgs
 fi
 
 if [ -n "$missing_pkgs" ]; then
