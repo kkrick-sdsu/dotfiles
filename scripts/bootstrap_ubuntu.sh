@@ -23,6 +23,7 @@ fi
 
 required_neovim_version="0.11.0"
 official_neovim_version="${NVIM_VERSION:-0.11.7}"
+neovim_bin="nvim"
 
 version_at_least() {
   version_at_least_required="$1"
@@ -57,7 +58,7 @@ version_at_least() {
 }
 
 neovim_version() {
-  nvim --version | sed -n '1s/^NVIM v//p' | cut -d- -f1
+  "$neovim_bin" --version | sed -n '1s/^NVIM v//p' | cut -d- -f1
 }
 
 install_official_neovim() {
@@ -86,6 +87,9 @@ install_official_neovim() {
     run_privileged mv /usr/local/bin/nvim /usr/local/bin/nvim.bak
   fi
   run_privileged ln -sfn "$install_dir/bin/nvim" /usr/local/bin/nvim
+  # Keep the remainder of this shell script from using the distro binary that
+  # may already be cached by the shell after apt installed it.
+  neovim_bin="$install_dir/bin/nvim"
   trap - EXIT HUP INT TERM
   rm -rf "$temp_dir"
 }
