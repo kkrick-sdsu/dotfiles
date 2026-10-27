@@ -6,6 +6,40 @@ if ! command -v apt-get >/dev/null 2>&1; then
   exit 1
 fi
 
+# The GitHub Copilot CLI requires Node.js 22 or newer. Ubuntu/Debian package
+# versions can lag behind, so use NodeSource only when the existing runtime is
+# absent or too old.
+required_node_major_version=22
+
+node_major_version() {
+  node --version 2>/dev/null | sed 's/^v//' | cut -d. -f1
+}
+
+ensure_node_min_version() {
+  current_node_major=0
+  if command -v node >/dev/null 2>&1; then
+    current_node_major=$(node_major_version)
+  fi
+
+  if [ "$current_node_major" -ge "$required_node_major_version" ] 2>/dev/null; then
+    return 0
+  fi
+
+  node_setup_script=$(mktemp)
+  trap 'rm -f "$node_setup_script"' EXIT HUP INT TERM
+  curl -fsSL "https://deb.nodesource.com/setup_${required_node_major_version}.x" -o "$node_setup_script"
+  run_privileged bash "$node_setup_script"
+  rm -f "$node_setup_script"
+  trap - EXIT HUP INT TERM
+  run_privileged apt-get install -y nodejs
+
+  current_node_major=$(node_major_version)
+  if [ "$current_node_major" -lt "$required_node_major_version" ] 2>/dev/null; then
+    echo "Node.js $required_node_major_version or newer is required for GitHub Copilot CLI." >&2
+    exit 1
+  fi
+}
+
 if [ "$(id -u)" -eq 0 ]; then
   run_privileged() {
     "$@"
@@ -119,6 +153,8 @@ if ! version_at_least "$required_neovim_version" "$(neovim_version)"; then
   exit 1
 fi
 
+ensure_node_min_version
+
 # LSP servers available via npm.
 run_privileged npm install -g \
   bash-language-server \
@@ -128,6 +164,12 @@ run_privileged npm install -g \
   yaml-language-server \
   pyright \
   vim-language-server
+
+# shellcheck disable=SC1091
+. "$(dirname -- "$0")/install_coding_clis.sh"
+install_linux_coding_clis
+install_copilot_cli_npm
+print_coding_cli_login_reminder
 
 if ! command -v uv >/dev/null 2>&1; then
   curl -LsSf https://astral.sh/uv/install.sh | sh

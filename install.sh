@@ -22,6 +22,9 @@ run_bootstrap() {
           arch|manjaro|endeavouros)
             bootstrap_script="$REPO_DIR/scripts/bootstrap_arch.sh"
             ;;
+          rhel|fedora|rocky|almalinux|centos|ol|amzn)
+            bootstrap_script="$REPO_DIR/scripts/bootstrap_rhel.sh"
+            ;;
         esac
 
         if [ -z "$bootstrap_script" ]; then
@@ -31,6 +34,9 @@ run_bootstrap() {
               ;;
             *" arch "*)
               bootstrap_script="$REPO_DIR/scripts/bootstrap_arch.sh"
+              ;;
+            *" rhel "*|*" fedora "*)
+              bootstrap_script="$REPO_DIR/scripts/bootstrap_rhel.sh"
               ;;
           esac
         fi
