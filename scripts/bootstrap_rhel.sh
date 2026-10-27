@@ -73,6 +73,17 @@ archive_arch() {
   esac
 }
 
+node_archive_arch() {
+  case "$(uname -m)" in
+    x86_64) printf '%s\n' x64 ;;
+    aarch64|arm64) printf '%s\n' arm64 ;;
+    *)
+      echo "No prebuilt Node.js archive is configured for $(uname -m)." >&2
+      exit 1
+      ;;
+  esac
+}
+
 download_and_extract() {
   archive_url="$1"
   archive_file="$2"
@@ -82,13 +93,13 @@ download_and_extract() {
   trap 'rm -rf "$temp_dir"' EXIT HUP INT TERM
   curl -fL --retry 3 -o "$temp_dir/$archive_file" "$archive_url"
   mkdir -p "$extract_dir"
-  tar -C "$extract_dir" -xzf "$temp_dir/$archive_file"
+  tar -C "$extract_dir" -xf "$temp_dir/$archive_file"
   rm -rf "$temp_dir"
   trap - EXIT HUP INT TERM
 }
 
 install_node() {
-  node_arch=$(archive_arch)
+  node_arch=$(node_archive_arch)
   node_dir="$local_opt/node-v${official_node_version}-linux-${node_arch}"
   node_archive="node-v${official_node_version}-linux-${node_arch}.tar.gz"
   node_url="https://nodejs.org/dist/v${official_node_version}/${node_archive}"
