@@ -16,7 +16,7 @@ Personal dotfiles repo with a small install/uninstall system and OS bootstraps.
 
 The Ubuntu and Arch bootstraps support root-based devcontainers directly. Non-root users need `sudo`; `uv` is installed for the invoking user. The RHEL/Fedora bootstrap is intended for shared and HPC systems: it never uses `sudo` or a system package manager, and installs its downloaded runtimes and npm packages under `~/.local`.
 
-The Neovim configuration requires Neovim 0.11 or newer. The Ubuntu bootstrap uses the distro package when it meets that requirement; otherwise it installs the pinned official Neovim release archive. Set `NVIM_VERSION` to override the fallback release version.
+The Neovim configuration requires Neovim 0.11 or newer. The Ubuntu bootstrap uses the distro package when it meets that requirement; otherwise it installs the pinned official Neovim release archive. The RHEL bootstrap automatically uses Neovim's legacy glibc-compatible build on RHEL 8/Rocky 8 systems. Set `NVIM_VERSION` to override the fallback release version.
 
 ## Coding CLI support
 
