@@ -20,7 +20,7 @@ The Neovim configuration requires Neovim 0.11 or newer. The Ubuntu bootstrap use
 
 ## Coding CLI support
 
-The bootstraps install coding CLIs only where the vendor documents support for the platform and this repository has an automated installation path. Installation does not authenticate the tools or store credentials; complete each tool's login flow after installation.
+The bootstraps install coding CLIs only where the vendor documents support for the platform and this repository has an automated installation path. Linux bootstraps use noninteractive npm installs so they can run in headless Coder/envbuilder containers; installation does not authenticate the tools or store credentials. Complete each tool's login flow after installation.
 
 | CLI | Debian/Ubuntu | macOS | Arch | RHEL/Fedora |
 | --- | --- | --- | --- | --- |
@@ -29,7 +29,7 @@ The bootstraps install coding CLIs only where the vendor documents support for t
 | OpenCode | Supported | Supported | Supported | Supported |
 | GitHub Copilot CLI | Supported with Node.js 22+ | Supported | Supported with Node.js 22+ | Supported with Node.js 22+ |
 
-On Arch, Claude Code and Codex can be attempted manually using their vendor installers, but this repository does not install them automatically because Arch is not listed in their official system requirements. The commands are:
+On Arch, Claude Code and Codex are not listed in their official system requirements. The bootstrap still installs their npm packages so headless environments can be provisioned consistently, but vendor support on Arch remains undocumented. If you prefer to install them manually, the vendor commands are:
 
 ```sh
 curl -fsSL https://claude.ai/install.sh | bash

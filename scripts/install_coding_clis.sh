@@ -29,10 +29,36 @@ install_vendor_cli() {
   fi
 }
 
+install_npm_cli() {
+  npm_cli_name="$1"
+  npm_cli_package="$2"
+
+  if coding_cli_available "$npm_cli_name"; then
+    return 0
+  fi
+
+  if ! command -v npm >/dev/null 2>&1; then
+    printf 'npm is required to install %s.\n' "$npm_cli_name" >&2
+    return 1
+  fi
+
+  printf 'Installing %s...\n' "$npm_cli_name"
+  npm install --prefix "$HOME/.local" -g --no-audit --no-fund "$npm_cli_package"
+
+  if ! coding_cli_available "$npm_cli_name"; then
+    printf 'The %s package installed, but %s is not on PATH.\n' \
+      "$npm_cli_package" "$npm_cli_name" >&2
+    return 1
+  fi
+}
+
 install_linux_coding_clis() {
-  install_vendor_cli claude https://claude.ai/install.sh bash
-  install_vendor_cli codex https://chatgpt.com/codex/install.sh
-  install_vendor_cli opencode https://opencode.ai/install bash
+  # npm installs are noninteractive, which is important for headless
+  # containers and Coder envbuilder builds. Authentication remains a separate
+  # interactive step when the user first runs each CLI.
+  install_npm_cli claude @anthropic-ai/claude-code
+  install_npm_cli codex @openai/codex
+  install_npm_cli opencode opencode-ai
 }
 
 install_macos_claude_code() {

@@ -45,7 +45,7 @@ for pkg in $core_pkgs $lsp_pkgs; do
   done
 
 if [ -n "$install_pkgs" ]; then
-  run_privileged pacman -Syu --needed $install_pkgs
+  run_privileged pacman -Syu --needed --noconfirm $install_pkgs
 fi
 
 if [ -n "$missing_pkgs" ]; then
@@ -61,7 +61,7 @@ fi
 # Claude Code and Codex do not list Arch in their official system
 # requirements. OpenCode is available in the official Arch repositories.
 if ! command -v opencode >/dev/null 2>&1; then
-  run_privileged pacman -S --needed opencode
+  run_privileged pacman -S --needed --noconfirm opencode
 fi
 
 # shellcheck disable=SC1091

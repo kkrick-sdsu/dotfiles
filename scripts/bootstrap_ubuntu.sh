@@ -128,6 +128,8 @@ install_official_neovim() {
   rm -rf "$temp_dir"
 }
 
+export DEBIAN_FRONTEND=noninteractive
+
 run_privileged apt-get update
 
 # Core tooling for this dotfiles repo and Neovim plugins.
